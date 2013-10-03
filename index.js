@@ -4,19 +4,22 @@ var http = require('http')
 
 var srv = express(), call = 0
 
+srv.use(express.cookieParser())
 srv.use(express.bodyParser())
+srv.use(express.session({secret: 'secret-key', sid: 'otro id'}))
 srv.use(express.static(__dirname + '/app'))
 srv.set('port', process.env.PORT || 8080)
 
 srv.get('/api/data.json', function(req, res){
+  if (!req.session.call) req.session.call = 0
   res.json({
-    id: call++,
+    id: req.session.call++,
     user: 'Alejandro Morales'
   })
 })
 
 srv.post('/api/reset', function(req, res){
-  call = 0
+  if (req.session.call) req.session.call = 0
   res.json({
     status: 'El contador ha sido reinciado'
   })
